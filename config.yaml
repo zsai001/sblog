@@ -1,0 +1,9 @@
+content_dir: 'content'
+languages:
+  - 'en'
+  - 'zh'
+  - 'ja'
+telegram_bot_token: 'your_telegram_bot_token'
+telegram_channel_id: 'your_telegram_channel_id'
+openai_api_key: 'sk-E2Fdl5s7EzepHPL8557602Ec8d404fEc80Db4d9a57CbBbC5'
+openai_api_base: 'http://156.236.74.60:3100/v1'
