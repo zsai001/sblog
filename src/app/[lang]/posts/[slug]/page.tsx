@@ -26,9 +26,6 @@ export default async function Post({ params }: PostProps) {
     const { lang, slug } = params;
     const post = await getPostData(slug, lang);
 
-    // 假设我们在post对象中添加了一个telegramPostId字段
-    const telegramPostId = post.telegramPostId || slug;
-
     return (
         <div className="container">
             <main>

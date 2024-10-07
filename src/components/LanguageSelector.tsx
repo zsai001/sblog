@@ -7,6 +7,11 @@ import { Language, languages, getTranslations } from '../translations';
 import tagTranslations from '../tagTranslations.json';
 
 
+interface TagTranslation {
+  cn: string;
+  en: string;
+  ja: string;
+}
 
 export default function LanguageSelector() {
   const pathname = usePathname();
@@ -18,8 +23,8 @@ export default function LanguageSelector() {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const getTranslatedTag = (currentTag: string, targetLang: string) => {
-    const tagEntry = tagTranslations.find((entry: any) => entry[currentLang] === currentTag);
-    return tagEntry ? tagEntry[targetLang] : currentTag;
+    const tagEntry = tagTranslations.find((entry) => entry[currentLang as keyof TagTranslation] === currentTag);
+    return tagEntry ? tagEntry[targetLang as keyof TagTranslation] : currentTag;
   };
 
   return (
