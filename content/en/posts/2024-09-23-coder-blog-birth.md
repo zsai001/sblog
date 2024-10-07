@@ -11,6 +11,7 @@ tags:
 - Development
 - Programmer
 - Self-Statement
+telegram_id: 11
 title: 'A Programmer''s Narrative: The Birth of a Blogging System'
 ---
 # A Programmer's Narrative: The Birth of a Blogging System

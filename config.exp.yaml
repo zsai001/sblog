@@ -2,6 +2,8 @@ content_dir: 'content'
 languages:
   - 'en'
   - 'zh'
+title: 'My Minimalist Blog'
+desc: 'Sharing thoughts and inspirations'
 telegram_bot_token: 'your_telegram_bot_token'
 telegram_channel_id: 'your_telegram_channel_id'
 openai_api_key: 'your_openai_api_key'

@@ -4,7 +4,10 @@ from openai import OpenAI
 import telegram
 from git import Repo
 import json
+import asyncio
 from datetime import datetime  # Add this import
+from bs4 import BeautifulSoup
+import markdown
 
 with open('config.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
@@ -109,9 +112,10 @@ def process_article(file_path):
             new_file_path = os.path.join(os.path.dirname(file_path), new_file_name)
             os.rename(file_path, new_file_path)
             file_path = new_file_path
-        # if 'telegram_id' not in frontmatter:
-        #     telegram_id = publish_to_telegram(frontmatter, body)
-        #     frontmatter['telegram_id'] = telegram_id
+        if 'telegram_id' not in frontmatter:
+            url = 'https://zsai010.com/zh/posts/2024-09-23-coder-blog-birth/'
+            telegram_id = publish_to_telegram(frontmatter, body, url)
+            frontmatter['telegram_id'] = telegram_id
         original_lang = file_path.split('/')[-3]
         for lang in LANGUAGES:
             if original_lang == lang:
@@ -254,41 +258,59 @@ def generate_frontmatter(date, body):
         return None
     pass
 
-def publish_to_telegram(frontmatter, body):
-    # 将文章发布到Telegram
-    # 返回Telegram消息ID
-    bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
-    
-    # 构建消息内容
-    title = frontmatter.get('title', 'Untitled')
-    summary = frontmatter.get('summary', '')
-    category = frontmatter.get('category', '')
-    tags = frontmatter.get('tags', [])
-    
-    message = f"*{title}*\n\n"
-    if summary:
-        message += f"{summary}\n\n"
-    if category:
-        message += f"Category: #{category}\n"
-    if tags:
-        message += f"Tags: {' '.join(['#' + tag for tag in tags])}\n"
-    
-    # 如果消息超过 Telegram 的字符限制，截断正文
-    max_length = 4096 - len(message)
-    if len(body) > max_length:
-        body = body[:max_length-3] + "..."
-    
-    message += f"\n{body}"
-    
-    # 发送消息到 Telegram 频道
-    sent_message = bot.send_message(
-        chat_id=TELEGRAM_CHANNEL_ID,
-        text=message,
-        parse_mode='Markdown'
-    )
-    
-    return sent_message.message_id
+def publish_to_telegram(frontmatter, body, url):
+    async def send_message():
+        bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+        
+        # 构建消息内容
+        title = frontmatter.get('title', 'Untitled')
+        summary = frontmatter.get('summary', '')
+        category = frontmatter.get('category', '')
+        tags = frontmatter.get('tags', [])
+        
+        # 将Markdown转换为HTML
+        html_content = markdown.markdown(body)
+        
+        # 使用BeautifulSoup提取纯文本
+        soup = BeautifulSoup(html_content, 'html.parser')
+        text_content = soup.get_text()
+        
+        # 创建预览（前150个字符）
+        preview = text_content[:150] + "..." if len(text_content) > 150 else text_content
+        
+        # 构建带样式的Telegram消息
+        # message = "📝 <b>新文章发布</b>\n\n"
+        message = f"标题: <b>{title}</b>\n\n"
+        if summary:
+            message += f"前言: <i>{summary}</i>\n\n"
+        else:
+            message += f"预览: <i>{preview}</i>\n\n"
+        if category:
+            message += f"分类: #{category}\n"
+        if tags:
+            message += f"标签: {' '.join(['#' + tag for tag in tags])}\n"
+        message += f"\n<b>阅读全文:</b>"
+        message += f"<a href='{url}'>{url}</a>"
+        
+        # # 添加分隔线和页脚
+        # message += "\n\n" + "—" * 20 + "\n"
+        # message += "欢迎订阅我们的频道，获取更多精彩内容！"
+        
+        # 发送消息到Telegram频道
+        sent_message = await bot.send_message(
+            chat_id=TELEGRAM_CHANNEL_ID,
+            text=message,
+            parse_mode='HTML',
+            disable_web_page_preview=True
+        )
+        
+        return sent_message.message_id
 
+    # 使用asyncio运行异步函数
+    loop = asyncio.get_event_loop()
+    message_id = loop.run_until_complete(send_message())
+    
+    return message_id
 
 
 def translate_content(content, target_lang):

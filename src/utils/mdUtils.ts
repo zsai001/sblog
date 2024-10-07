@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import yaml from 'js-yaml'
 
 const contentDirectory = path.join(process.cwd(), 'content');
 
@@ -8,7 +9,11 @@ export async function getContactContent(lang: string) {
     // Implementation of getContactContent
     const fullPath = path.join(contentDirectory, lang, 'contact.md');
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
+    const { data, content } = matter(fileContents, {
+        engines: {
+          yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object
+        }
+      })
 
     return {
         title: data.title,
@@ -23,7 +28,11 @@ export function getAllPosts(lang: string) {
     for (const fileName of fileNames) {
         const fullPath = path.join(postsDirectory, fileName);
         const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
+        const { data, content } = matter(fileContents, {
+            engines: {
+              yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object
+            }
+          })
         posts.push({ 
             slug: fileName.replace(/\.md$/, ''),
             ...data,    
@@ -37,7 +46,11 @@ export function getAboutContent(lang: string) {
     try {
         const fullPath = path.join(contentDirectory, lang, 'about.md');
         const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
+        const { data, content } = matter(fileContents, {
+            engines: {
+              yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object
+            }
+          })
 
         return {
             title: data.title,
@@ -61,7 +74,11 @@ export function getAllPostSlugs(lang: string) {
 export function getPostData(slug: string, lang: string) {
     const fullPath = path.join(contentDirectory, lang, 'posts', `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
+    const { data, content } = matter(fileContents, {
+        engines: {
+          yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object
+        }
+      })
 
     return {
         slug,
@@ -112,7 +129,11 @@ export function getPostsByTag(tag: string, lang: string) {
     for (const fileName of fileNames) {
         const fullPath = path.join(postsDirectory, fileName);
         const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
+        const { data, content } = matter(fileContents, {
+            engines: {
+              yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object
+            }
+          })
 
         if (data.tags && Array.isArray(data.tags) && data.tags.some((t: string) => t.toLowerCase() === tag.toLowerCase())) {
             posts.push({

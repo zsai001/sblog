@@ -4,6 +4,7 @@ import { getTranslation } from '../../../../contexts/LanguageContext';
 import { Language, languages } from '../../../../translations';
 import ReactMarkdown from 'react-markdown';
 import CustomMarkdown from '../../../../components/CustomMarkdown';
+import Comments from '../../../../components/Comments';
 
 interface PostProps {
     params: { lang: Language; slug: string };
@@ -26,7 +27,7 @@ export default async function Post({ params }: PostProps) {
     const post = await getPostData(slug, lang);
 
     // 假设我们在post对象中添加了一个telegramPostId字段
-    // const telegramPostId = post.telegramPostId || slug;
+    const telegramPostId = post.telegramPostId || slug;
 
     return (
         <div className="container">
@@ -39,7 +40,7 @@ export default async function Post({ params }: PostProps) {
                     </p>
                     <CustomMarkdown>{post.content}</CustomMarkdown>
                 </article>
-                {/* <TelegramComments postId={telegramPostId} lang={lang} /> */}
+                <Comments slug={slug} />
             </main>
         </div>
     );

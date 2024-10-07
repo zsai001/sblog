@@ -1,7 +1,7 @@
 import { getTranslation } from '../contexts/LanguageContext';
 import { Language } from '../translations';
 import { getTelegramComments } from '../utils/telegramUtils';
-
+import { getConfig } from '../utils/config';
 interface Comment {
   id: number;
   text: string;
@@ -44,14 +44,15 @@ const CommentItem = ({ comment }: { comment: Comment }) => (
 );
 
 const TelegramComments = async ({ postId, lang }: TelegramCommentsProps) => {
-  const comments = await getTelegramComments(postId);
+  // const comments = await getTelegramComments(postId);
+  const config = getConfig()
 
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">{getTranslation(lang, 'comments')}</h2>
         <a
-          href={`https://t.me/your_channel/${postId}`}
+          href={`https://t.me/${config.telegram_channel_id}/${postId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded"
